@@ -1,5 +1,5 @@
 # myagent
-learn ai agent
+从网络中读取输入，调用大模型输出结果
 
 # 构建
 ```sh
@@ -18,3 +18,10 @@ export LD_LIBRARY_PATH=${PWD}/output/lib:${LD_LIBRARY_PATH}
 
 ./output/bin/launcher
 ```
+
+# TODOLIST
+- 工具
+    - [ ] 网页搜索工具
+    - [ ] 本地终端命令执行工具
+- [ ] 技能库
+- [ ] 本地知识库
