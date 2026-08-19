@@ -5,10 +5,15 @@
 
 namespace myagent {
 
+const static std::string TERMINAL_DESC = R"(
+  MacOS终端执行工具,在本地终端执行bash/shell命令;
+  禁止执行危害系统的指令,比如删除指令,修改系统配置指令。
+)";
+
 TerminalTool::TerminalTool()
   : forgeant::Tool(
       R"(Terminal)",
-      R"(终端执行工具)",
+      TERMINAL_DESC,
       Schema(),
       std::bind(&TerminalTool::Execute, this, std::placeholders::_1))
 {}

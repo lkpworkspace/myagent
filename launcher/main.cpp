@@ -68,30 +68,46 @@ void mutil_turn(std::unique_ptr<forgeant::Agent>& agent) {
               << std::endl;
 }
 
-void get_weather_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
+// get_weather_tool_usage(agent, "What's the weather like in Denver?");
+void get_weather_tool_usage(
+    std::unique_ptr<forgeant::Agent>& agent,
+    std::string msg) {
   add_get_weather_tool(agent);
-  auto result = agent->run("What's the weather like in Denver?");
+  auto result = agent->run(msg);
   std::cout << "Response: " << result.output << std::endl;
   std::cout << "Iterations: " << result.iterations << std::endl;
   print_conv(result.conversation);
 }
 
-void wechat_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
+// wechat_tool_usage(agent, R"(用微信给"老婆"发一条七夕快乐祝福语并注明是用myagent发送的)");
+void wechat_tool_usage(
+    std::unique_ptr<forgeant::Agent>& agent,
+    std::string msg) {
   myagent::WeChatTool tool;
   agent->add_tool(std::move(tool));
-  auto result = agent->run(R"(用微信给"老婆"发一条七夕快乐祝福语并注明是用myagent发送的)");
+  auto result = agent->run(msg);
   std::cout << "Response: " << result.output << std::endl;
   std::cout << "Iterations: " << result.iterations << std::endl;
   print_conv(result.conversation);
 }
 
-void terminal_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
+// terminal_tool_usage(agent, R"(我的电脑配置信息,我是mac电脑)");
+void terminal_tool_usage(
+    std::unique_ptr<forgeant::Agent>& agent,
+    std::string msg) {
   myagent::TerminalTool tool;
   agent->add_tool(std::move(tool));
-  auto result = agent->run(R"(我的电脑配置信息,我是mac电脑)");
+  auto result = agent->run(msg);
   std::cout << "Response: " << result.output << std::endl;
   std::cout << "Iterations: " << result.iterations << std::endl;
   print_conv(result.conversation);
+}
+
+void reg_all_tool(std::unique_ptr<forgeant::Agent>& agent) {
+  myagent::TerminalTool terminal_tool;
+  agent->add_tool(std::move(terminal_tool));
+  myagent::WeChatTool wechat_tool;
+  agent->add_tool(std::move(wechat_tool));
 }
 
 int main(int argc, char* argv[]) {
@@ -100,10 +116,14 @@ int main(int argc, char* argv[]) {
     .base_url = "127.0.0.1:8080",
     .system_prompt = "You are a helpful assistant, answer questions in chinese.",
   });
+  reg_all_tool(agent);
 
-  // get_weather_tool_usage(agent);
-  // wechat_tool_usage(agent);
-  terminal_tool_usage(agent);
-
+  if (argc != 2) {
+    std::cerr << "needed one argument, eg: launcher \"hello\"" << std::endl;
+    return -1;
+  }
+  auto result = agent->run(argv[1]);
+  std::cout << "Response: " << result.output << std::endl;
+  std::cout << "Iterations: " << result.iterations << std::endl;
   return 0;
 }
