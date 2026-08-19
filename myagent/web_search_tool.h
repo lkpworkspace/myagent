@@ -4,12 +4,16 @@
 
 namespace myagent {
 
-class MYAGENT_EXPORT WebSearchTool {
-public:
+class MYAGENT_EXPORT WebSearchTool : public forgeant::Tool {
+ public:
   WebSearchTool();
-  virtual ~WebSearchTool();
+  ~WebSearchTool();
 
-  forgeant::Json Run(const forgeant::Json&);
+  forgeant::Json Schema();
+  forgeant::Json Execute(const forgeant::Json&);
+
+ private:
+  forgeant::Json SearchTavily(const std::string& query, int max_results);
 };
 
 }  // namespace myagent
