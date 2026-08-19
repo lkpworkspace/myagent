@@ -11,9 +11,13 @@ aux_source_directory(. __srcs)
 add_executable(test_wechat test_wechat.cpp)
 target_link_libraries(test_wechat PRIVATE ${PROJECT_NAME})
 
+add_executable(test_terminal test_terminal.cpp)
+target_link_libraries(test_terminal PRIVATE ${PROJECT_NAME})
+
 ### install
 install(TARGETS
     test_wechat
+    test_terminal
   LIBRARY DESTINATION ${MYAGENT_LIB_DIR}
   ARCHIVE DESTINATION ${MYAGENT_LIB_DIR}
   RUNTIME DESTINATION ${MYAGENT_BIN_DIR}

@@ -2,6 +2,7 @@
 
 #include <forgeant/forgeant.hpp>
 #include "myagent/wechat_tool.h"
+#include "myagent/terminal_tool.h"
 #include "get_weather_tool.hpp"
 
 void print_conv(const forgeant::Conversation& conv) {
@@ -84,6 +85,15 @@ void wechat_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
   print_conv(result.conversation);
 }
 
+void terminal_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
+  myagent::TerminalTool tool;
+  agent->add_tool(std::move(tool));
+  auto result = agent->run(R"(我的电脑配置信息,我是mac电脑)");
+  std::cout << "Response: " << result.output << std::endl;
+  std::cout << "Iterations: " << result.iterations << std::endl;
+  print_conv(result.conversation);
+}
+
 int main(int argc, char* argv[]) {
   auto agent = forgeant::Agent::create("openai", {
     .model = "Qwen3-8B-Q8_0",
@@ -91,8 +101,9 @@ int main(int argc, char* argv[]) {
     .system_prompt = "You are a helpful assistant, answer questions in chinese.",
   });
 
-//   get_weather_tool_usage(agent);
-  wechat_tool_usage(agent);
+  // get_weather_tool_usage(agent);
+  // wechat_tool_usage(agent);
+  terminal_tool_usage(agent);
 
   return 0;
 }

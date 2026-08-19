@@ -22,9 +22,9 @@ export LD_LIBRARY_PATH=${PWD}/output/lib:${LD_LIBRARY_PATH}
 
 # TODOLIST
 - 工具
-    - [ ] 微信聊天工具
+    - [x] 微信聊天工具
+    - [x] 本地终端命令执行工具
     - [ ] 网页搜索工具
-    - [ ] 本地终端命令执行工具
     - [ ] 定时执行工具
 - [ ] 技能库
 - [ ] 本地知识库

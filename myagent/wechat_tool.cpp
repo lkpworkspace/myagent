@@ -1,26 +1,9 @@
 #include <iostream>
 #include "myframe/common.h"
-#include "wechat_tool.h"
+#include "myagent/common.h"
+#include "myagent/wechat_tool.h"
 
 namespace myagent {
-
-std::string ExecCommand(const std::string& cmd) {
-  std::array<char, 128> buffer;
-  std::string result;
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
-  if (!pipe) {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-    result += buffer.data();
-  }
-  std::cout << "[myagent] exec command \"" << cmd << "\",result: "
-    << result << std::endl;
-  if (!result.empty() && result.back() == '\n') {
-    result.pop_back();
-  }
-  return result;
-}
 
 WeChatTool::WeChatTool()
   : forgeant::Tool(
@@ -50,14 +33,14 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
     return response;
   }
   // execute apple script
-  std::cout << "[myagent.TOOL] wechat recv: user:" << user << ", message:" << message << std::endl;
+  std::cout << "[myagent.TOOL] wechat recv user:" << user << ", message:" << message << std::endl;
   auto root_dir = myframe::Common::GetWorkRoot();
   std::string script_filepath = (root_dir / "resources/wechat.applescript").string();
   std::string cmd = "osascript " + script_filepath
     + " " + user
     + " \"" + message + "\"";
   try {
-    std::string output = ExecCommand(cmd);
+    std::string output = Common::ExecCommand(cmd);
     if (output == "OK") {
       response["state"] = "OK";
     } else {
