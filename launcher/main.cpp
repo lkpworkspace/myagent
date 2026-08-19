@@ -78,7 +78,7 @@ void get_weather_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
 void wechat_tool_usage(std::unique_ptr<forgeant::Agent>& agent) {
   myagent::WeChatTool tool;
   agent->add_tool(std::move(tool));
-  auto result = agent->run(R"(用微信给老婆发消息:七夕快乐)");
+  auto result = agent->run(R"(用微信给"老婆"发一条七夕快乐祝福语并注明是用myagent发送的)");
   std::cout << "Response: " << result.output << std::endl;
   std::cout << "Iterations: " << result.iterations << std::endl;
   print_conv(result.conversation);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     .system_prompt = "You are a helpful assistant, answer questions in chinese.",
   });
 
-  get_weather_tool_usage(agent);
+//   get_weather_tool_usage(agent);
   wechat_tool_usage(agent);
 
   return 0;

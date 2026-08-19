@@ -14,6 +14,8 @@ std::string ExecCommand(const std::string& cmd) {
   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
     result += buffer.data();
   }
+  std::cout << "[myagent] exec command \"" << cmd << "\",result: "
+    << result << std::endl;
   if (!result.empty() && result.back() == '\n') {
     result.pop_back();
   }
@@ -43,6 +45,8 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
   auto user = input.value<std::string>("user", "");
   auto message = input.value<std::string>("message", "");
   if (user.empty() || message.empty()) {
+    response["state"] = "ERROR";
+    response["message"] = "user or message is empty";
     return response;
   }
   // execute apple script
@@ -53,11 +57,18 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
     + " " + user
     + " \"" + message + "\"";
   try {
-      std::string output = ExecCommand(cmd);
-      std::cout << "AppleScript: " << output << std::endl;
+    std::string output = ExecCommand(cmd);
+    if (output == "OK") {
+      response["state"] = "OK";
+    } else {
+      response["state"] = "ERROR";
+      response["message"] = output;
+    }
   } catch (const std::exception& e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    response["state"] = "ERROR";
+    response["message"] = e.what();
   }
+  std::cout << "[myagent.TOOL] wechat result: " << response.dump() << std::endl;
   return response;
 }
 
