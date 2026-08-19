@@ -50,10 +50,12 @@ set(MYAGENT_PYTHON_DIR "lib/python")
 ### deps libs
 find_package(Threads REQUIRED)
 find_package(forgeant REQUIRED)
+find_package(myframe REQUIRED)
 
 ### sub directory
 add_subdirectory(myagent)
 add_subdirectory(launcher)
+add_subdirectory(test)
 
 ### install file/dir
 install(FILES
@@ -64,6 +66,7 @@ install(FILES
   WORLD_READ
   DESTINATION .
 )
+install(DIRECTORY resources DESTINATION .)
 
 ### package
 include(Packing)

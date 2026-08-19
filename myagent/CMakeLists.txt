@@ -20,6 +20,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Threads::Threads
   forgeant::forgeant
+  myframe
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})

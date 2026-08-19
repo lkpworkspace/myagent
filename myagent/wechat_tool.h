@@ -4,12 +4,13 @@
 
 namespace myagent {
 
-class MYAGENT_EXPORT WeChatTool {
+class MYAGENT_EXPORT WeChatTool : public forgeant::Tool {
 public:
   WeChatTool();
-  virtual ~WeChatTool();
+  ~WeChatTool();
 
-  forgeant::Json Run(const forgeant::Json&);
+  forgeant::Json Schema();
+  forgeant::Json Execute(const forgeant::Json&);
 };
 
 }  // namespace myagent
