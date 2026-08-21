@@ -49,6 +49,7 @@ set(MYAGENT_PYTHON_DIR "lib/python")
 
 ### deps libs
 find_package(Threads REQUIRED)
+find_package(CURL REQUIRED)
 find_package(forgeant REQUIRED)
 find_package(myframe REQUIRED)
 

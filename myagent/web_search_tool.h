@@ -18,6 +18,7 @@ class MYAGENT_EXPORT WebSearchTool : public forgeant::Tool {
     int max_results,
     const std::string& api_key);
   forgeant::Json SearchDuckDuckGo(const std::string& query);
+  std::string UrlEncode(const std::string& input);
 };
 
 }  // namespace myagent

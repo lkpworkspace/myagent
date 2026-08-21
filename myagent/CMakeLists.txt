@@ -19,6 +19,7 @@ target_link_libraries(${PROJECT_NAME}
   ${CMAKE_DL_LIBS}
   PUBLIC
   Threads::Threads
+  CURL::libcurl
   forgeant::forgeant
   myframe
 )

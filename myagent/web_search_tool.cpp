@@ -1,4 +1,5 @@
 #include <iostream>
+#include <curl/curl.h>
 #include "myframe/common.h"
 #include "myagent/common.h"
 #include "myagent/web_search_tool.h"
@@ -120,10 +121,10 @@ forgeant::Json WebSearchTool::SearchDuckDuckGo(const std::string& query) {
   // DuckDuckGo Instant Answer API
   // https://api.duckduckgo.com/?q=QUERY&format=json
   // 注意: 这是即时问答 API, 不是完整搜索, 结果可能为空
-  std::string url = "http://api.duckduckgo.com/";
-  // TODO: query请求遇到中文或特殊字符需要百分号编码
+  forgeant::CurlHttpClient client;
+  std::string url = "https://api.duckduckgo.com/";
   std::unordered_map<std::string, std::string> params = {
-    {"q", query},
+    {"q", UrlEncode(query)},
     {"format", "json"},
     {"no_html", "1"},
     {"skip_disambig", "1"},
@@ -141,7 +142,6 @@ forgeant::Json WebSearchTool::SearchDuckDuckGo(const std::string& query) {
     url += p.second;
   }
   std::cout << "[myagent.TOOL] DuckDuckGo search: " << url << std::endl;
-  forgeant::CurlHttpClient client;
   forgeant::HttpHeaders header = {};
   forgeant::HttpResponse http_resp;
   try {
@@ -184,6 +184,15 @@ forgeant::Json WebSearchTool::SearchDuckDuckGo(const std::string& query) {
   }
 
   return forgeant::Json::object({{"query", query}, {"results", results}});
+}
+
+std::string WebSearchTool::UrlEncode(const std::string& input) {
+  CURL* curl = curl_easy_init();
+  char* encoded = curl_easy_escape(curl, input.c_str(), static_cast<int>(input.length()));
+  std::string result(encoded);
+  curl_free(encoded);
+  curl_easy_cleanup(curl);
+  return result;
 }
 
 }  // namespace myagent
