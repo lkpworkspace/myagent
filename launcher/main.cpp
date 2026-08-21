@@ -4,6 +4,7 @@
 #include "myagent/wechat_tool.h"
 #include "myagent/terminal_tool.h"
 #include "myagent/web_search_tool.h"
+#include "myagent/cron_tool.h"
 #include "get_weather_tool.hpp"
 
 void print_conv(const forgeant::Conversation& conv) {
@@ -111,6 +112,8 @@ void reg_all_tool(std::unique_ptr<forgeant::Agent>& agent) {
   agent->add_tool(std::move(wechat_tool));
   myagent::WebSearchTool web_search_tool;
   agent->add_tool(std::move(web_search_tool));
+  myagent::CronTool cron_tool;
+  agent->add_tool(std::move(cron_tool));
 }
 
 int main(int argc, char* argv[]) {

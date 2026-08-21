@@ -13,7 +13,11 @@ class MYAGENT_EXPORT WebSearchTool : public forgeant::Tool {
   forgeant::Json Execute(const forgeant::Json&);
 
  private:
-  forgeant::Json SearchTavily(const std::string& query, int max_results);
+  forgeant::Json SearchTavily(
+    const std::string& query,
+    int max_results,
+    const std::string& api_key);
+  forgeant::Json SearchDuckDuckGo(const std::string& query);
 };
 
 }  // namespace myagent

@@ -28,8 +28,8 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
   auto user = input.value<std::string>("user", "");
   auto message = input.value<std::string>("message", "");
   if (user.empty() || message.empty()) {
-    response["state"] = "ERROR";
-    response["message"] = "user or message is empty";
+    response["error"] = "error";
+    response["detail"] = "user or message is empty";
     return response;
   }
   // execute apple script
@@ -37,19 +37,19 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
   auto root_dir = myframe::Common::GetWorkRoot();
   std::string script_filepath = (root_dir / "resources/wechat.applescript").string();
   std::string cmd = "osascript " + script_filepath
-    + " " + user
+    + " \"" + user + "\""
     + " \"" + message + "\"";
   try {
     std::string output = Common::ExecCommand(cmd);
     if (output == "OK") {
-      response["state"] = "OK";
+      response["error"] = "OK";
     } else {
-      response["state"] = "ERROR";
-      response["message"] = output;
+      response["error"] = "error";
+      response["detail"] = output;
     }
   } catch (const std::exception& e) {
-    response["state"] = "ERROR";
-    response["message"] = e.what();
+    response["error"] = "error";
+    response["detail"] = e.what();
   }
   std::cout << "[myagent.TOOL] wechat result: " << response.dump() << std::endl;
   return response;

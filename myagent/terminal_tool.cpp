@@ -22,7 +22,8 @@ TerminalTool::~TerminalTool() {}
 
 forgeant::Json TerminalTool::Schema() {
   return forgeant::Schema::object()
-    .property("command", forgeant::Schema::string().description(R"(命令)").build())
+    .property("command", forgeant::Schema::string()
+      .description(R"(The shell command to execute)").build())
     .required({"command"})
     .build();
 }
@@ -31,18 +32,19 @@ forgeant::Json TerminalTool::Execute(const forgeant::Json& input) {
   forgeant::Json response;
   auto cmd = input.value<std::string>("command", "");
   if (cmd.empty()) {
-    response["state"] = "ERROR";
-    response["result"] = "command is empty";
+    response["error"] = "error";
+    response["detail"] = "command is empty";
     return response;
   }
+  cmd += " 2>&1";
   // execute apple script
   std::cout << "[myagent.TOOL] terminal recv command:" << cmd << std::endl;
   try {
     std::string output = Common::ExecCommand(cmd);
     response["output"] = output;
   } catch (const std::exception& e) {
-    response["state"] = "ERROR";
-    response["message"] = e.what();
+    response["error"] = "error";
+    response["detail"] = e.what();
   }
   std::cout << "[myagent.TOOL] terminal result: " << response.dump() << std::endl;
   return response;

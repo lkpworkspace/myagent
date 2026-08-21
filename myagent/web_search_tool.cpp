@@ -45,26 +45,27 @@ forgeant::Json WebSearchTool::Execute(const forgeant::Json& input) {
   // execute web search
   std::cout << "[myagent.TOOL] web search query: " << query
     << ", max results:" << max_results << std::endl;
-  response = SearchTavily(query, max_results);
+  auto tavily_api_key = std::getenv("TAVILY_API_KEY");
+  if (tavily_api_key == nullptr) {
+    response = SearchDuckDuckGo(query);
+    // return forgeant::Json::object({
+    //     {"error", "error"},
+    //     {"detail", "Tavily api key is empty"},
+    //   });
+  } else {
+    response = SearchTavily(query, max_results, tavily_api_key);
+  }
   std::cout << "[myagent.TOOL] web search result: " << response.dump() << std::endl;
   return response;
 }
 
 forgeant::Json WebSearchTool::SearchTavily(
     const std::string& query,
-    int max_results) {
-  std::string tavily_api_key = std::getenv("TAVILY_API_KEY");
-  std::cout << "Tavily api key: " << tavily_api_key << std::endl;
-  if (tavily_api_key.empty()) {
-    return forgeant::Json::object({
-        {"error", "error"},
-        {"detail", "Tavily api key is empty"},
-      });
-  }
-
+    int max_results,
+    const std::string& api_key) {
   std::string url = "https://api.tavily.com/search";
   auto body = forgeant::Json::object({
-    {"api_key", tavily_api_key},
+    {"api_key", api_key},
     {"query", query},
     {"max_results", max_results},
     {"include_answer", true},
@@ -73,16 +74,15 @@ forgeant::Json WebSearchTool::SearchTavily(
     {"Content-Type", "application/json"}
   };
   forgeant::CurlHttpClient client;
-  auto http_resp = client.post(url, header, body.dump());
-  /*
-    struct HttpResponse {
-        int status_code = 0;
-        std::unordered_map<std::string, std::string> headers;
-        std::string body;
-
-        bool operator==(const HttpResponse&) const = default;
-    };
-  */
+  forgeant::HttpResponse http_resp;
+  try {
+    http_resp = client.post(url, header, body.dump());
+  } catch (const std::exception& e) {
+    return forgeant::Json::object({
+      {"error", "error"},
+      {"detail", e.what()}
+    });
+  }
   auto resp = forgeant::Json::parse(http_resp.body);
   if (http_resp.status_code != 200) {
     return forgeant::Json::object({
@@ -110,6 +110,76 @@ forgeant::Json WebSearchTool::SearchTavily(
         {"content", item.value("content", "")},
         {"score",   item.value("score", 0.0)}
       }));
+    }
+  }
+
+  return forgeant::Json::object({{"query", query}, {"results", results}});
+}
+
+forgeant::Json WebSearchTool::SearchDuckDuckGo(const std::string& query) {
+  // DuckDuckGo Instant Answer API
+  // https://api.duckduckgo.com/?q=QUERY&format=json
+  // 注意: 这是即时问答 API, 不是完整搜索, 结果可能为空
+  std::string url = "http://api.duckduckgo.com/";
+  // TODO: query请求遇到中文或特殊字符需要百分号编码
+  std::unordered_map<std::string, std::string> params = {
+    {"q", query},
+    {"format", "json"},
+    {"no_html", "1"},
+    {"skip_disambig", "1"},
+  };
+  bool is_first = true;
+  for (const auto& p : params) {
+    if (is_first) {
+      url += "?";
+      is_first = false;
+    } else {
+      url += "&";
+    }
+    url += p.first;
+    url += "=";
+    url += p.second;
+  }
+  std::cout << "[myagent.TOOL] DuckDuckGo search: " << url << std::endl;
+  forgeant::CurlHttpClient client;
+  forgeant::HttpHeaders header = {};
+  forgeant::HttpResponse http_resp;
+  try {
+    http_resp = client.post(url, header, "");
+  } catch (const std::exception& e) {
+    return forgeant::Json::object({
+      {"error", "error"},
+      {"detail", e.what()}
+    });
+  }
+  auto resp = forgeant::Json::parse(http_resp.body);
+  if (http_resp.status_code != 200) {
+    return forgeant::Json::object({
+        {"error", "DuckDuckGo API error: HTTP " + std::to_string(http_resp.status_code)}
+    });
+  }
+
+  auto results = forgeant::Json::array();
+
+  // 提取摘要文本
+  if (!resp.value("AbstractText", "").empty()) {
+    results.push_back(forgeant::Json::object({
+      {"type", "answer"},
+      {"content", resp["AbstractText"]},
+      {"source", resp.value("AbstractURL", "")}
+    }));
+  }
+
+  // 提取相关主题
+  if (resp.contains("RelatedTopics")) {
+    for (const auto& topic : resp["RelatedTopics"]) {
+      if (topic.contains("Text")) {
+        results.push_back(forgeant::Json::object({
+          {"title", topic.value("FirstURL", "")},
+          {"content", topic.value("Text", "")},
+          {"url", topic.value("FirstURL", "")}
+        }));
+      }
     }
   }
 
