@@ -18,7 +18,7 @@ export DYLD_LIBRARY_PATH=${PWD}/output/lib:${DYLD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${PWD}/output/lib:${LD_LIBRARY_PATH}
 export TAVILY_API_KEY="tvly-xxxxx"
 
-./output/bin/launcher
+./output/bin/myagent_launcher
 ```
 
 # TODOLIST
