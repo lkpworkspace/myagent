@@ -35,7 +35,7 @@ forgeant::Json WeChatTool::Execute(const forgeant::Json& input) {
   // execute apple script
   std::cout << "[myagent.TOOL] wechat recv user:" << user << ", message:" << message << std::endl;
   auto root_dir = myframe::Common::GetWorkRoot();
-  std::string script_filepath = (root_dir / "resources/wechat.applescript").string();
+  std::string script_filepath = (root_dir / "resources/scripts/wechat.applescript").string();
   std::string cmd = "osascript " + script_filepath
     + " \"" + user + "\""
     + " \"" + message + "\"";
